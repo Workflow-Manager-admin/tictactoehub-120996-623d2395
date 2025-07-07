@@ -17,12 +17,18 @@ app = FastAPI(
     openapi_tags=openapi_tags
 )
 
+# PUBLIC_INTERFACE
+# Add robust production CORS settings.
+# • allow_credentials: False (browsers block if True with "*")
+# • allow_origins: ["*"] for development, or set front-end base URL for strict production.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # For public demo, allow all. Change to only frontend domain in real production
+    allow_credentials=False,  # IMPORTANT: True with "*" is a browser CORS violation (Forbidden by Fetch spec)
+    allow_methods=["GET", "POST", "OPTIONS"],  # Only needed HTTP verbs; add others if needed
+    allow_headers=["*"],  # Allow all for open API, or specify custom headers
+    expose_headers=["Content-Type", "Authorization"],  # Expose key headers if frontend needs them
+    max_age=600,  # Optional: browsers cache CORS preflight for faster repeated requests
 )
 
 @app.on_event("startup")
@@ -33,6 +39,17 @@ def on_startup():
     init_db()
 
 app.include_router(api_router)
+
+# PUBLIC_INTERFACE
+@app.get("/cors-test")
+def cors_test():
+    """
+    Returns a simple JSON object and custom header so that frontends can verify that CORS is working.
+    """
+    from fastapi.responses import JSONResponse
+
+    headers = {"X-Test-Header": "fastapi-cors-ok"}
+    return JSONResponse(content={"cors": "ok"}, headers=headers)
 
 @app.get("/")
 def health_check():
