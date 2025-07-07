@@ -5,15 +5,14 @@ from .db import init_db
 from .routes import router as api_router
 
 openapi_tags = [
-    {"name": "auth",        "description": "Authentication (register/login)"},
     {"name": "games",       "description": "Tic Tac Toe gameplay operations"},
     {"name": "leaderboard", "description": "Leaderboard/statistics"},
-    {"name": "users",       "description": "User profile and game history"},
+    {"name": "history",     "description": "Public game history"},
 ]
 
 app = FastAPI(
     title="Tic Tac Toe API",
-    description="REST API backend for fullstack Tic Tac Toe (auth, gameplay, leaderboard, history)",
+    description="REST API backend for fullstack Tic Tac Toe (gameplay, leaderboard, history - no authentication)",
     version="1.0.0",
     openapi_tags=openapi_tags
 )
